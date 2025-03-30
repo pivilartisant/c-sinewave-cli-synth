@@ -1,8 +1,10 @@
+// main.c
+
 #include <soundio/soundio.h>
 
 #include <stdio.h>
 #include <math.h>
-#include "utils/sinewave2.c"
+#include "src/sinewave.c"
 
 int main(int argc, char **argv) {
     int err;
