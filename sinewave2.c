@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <headers/octave.h>
 
 static const float PI = 3.1415926535f;
 static float seconds_offset = 0.0f;
@@ -11,13 +12,14 @@ static void write_callback(struct SoundIoOutStream *outstream,
         int frame_count_min, int frame_count_max)   
 {
     const struct SoundIoChannelLayout *layout = &outstream->layout;
-    float float_sample_rate = outstream->sample_rate; // 48000
-    float seconds_per_frame = 1.0f / float_sample_rate;
+    float float_sample_rate = outstream->sample_rate; // or frames per second defaults to 48000
+    float seconds_per_frame = 1.0f / float_sample_rate;  // number of seconds per frame 
     struct SoundIoChannelArea *areas;
     int frames_left = frame_count_max;
     int err;
 
     while (frames_left > 0) {
+
         int frame_count = frames_left;
 
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count))) {
@@ -28,19 +30,15 @@ static void write_callback(struct SoundIoOutStream *outstream,
         if (!frame_count)
             break;
 
-        float pitch = 440.0f;
-        float radians_per_second = pitch * 2.0f * PI;
-        seconds_offset = fmod(seconds_offset + seconds_per_frame * frame_count, 1.0);
-        
-   
+        float note_frequency = 440.0f;
         for (int frame = 0; frame < frame_count; frame += 1) {
-            // A sinewave
-            float noteA = sin((seconds_offset + frame * seconds_per_frame) * radians_per_second);
 
-            // C sharp sinewave
-            float noteCsh = sin((seconds_offset + frame * seconds_per_frame) * (pitch + pitch*3/12) * 2.0f * PI);
-            //  sinewave
-            float noteEsh = sin((seconds_offset + frame * seconds_per_frame) * (pitch + pitch*6/12) * 1.0f * PI);
+  
+            // we are going for a two channel polyphonic synth
+            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, false, 0) * PI);
+
+            // here we play the same A note but 2 octaves below
+            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, true, 0.5f) * PI);
         
             
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
@@ -48,14 +46,14 @@ static void write_callback(struct SoundIoOutStream *outstream,
                // dividing notes by channel channel 0 is left, channel 1 is right
                if (channel == 0) {
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
-                *ptr = noteA;
+                *ptr = note_one;
                } else {
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
-                *ptr = noteCsh + noteEsh;
+                *ptr = note_two;
                }
             }
         }
-     
+        seconds_offset = fmod(seconds_offset + seconds_per_frame * frame_count, 1.0);
 
         if ((err = soundio_outstream_end_write(outstream))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));
