@@ -4,11 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <headers/octave.h>
-#include <headers/scales.h>
-
-
-
+#include <include/octave.h>
+#include <include/scales.h>
 
 static float seconds_offset = 0.0f;
 static void generate_sinewave(struct SoundIoOutStream *outstream,
