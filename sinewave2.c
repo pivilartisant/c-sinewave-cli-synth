@@ -5,6 +5,9 @@
 #include <string.h>
 #include <math.h>
 #include <headers/octave.h>
+#include <headers/scales.h>
+
+
 
 
 static float seconds_offset = 0.0f;
@@ -17,6 +20,9 @@ static void write_callback(struct SoundIoOutStream *outstream,
     struct SoundIoChannelArea *areas;
     int frames_left = frame_count_max;
     int err;
+
+    struct A_minor_scale a_minor_scale;
+    initScale(&a_minor_scale);
 
     while (frames_left > 0) {
 
@@ -35,10 +41,10 @@ static void write_callback(struct SoundIoOutStream *outstream,
 
   
             // we are going for a two channel polyphonic synth
-            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, false, 0) * M_PI);
+            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, true, 0.75) * M_PI);
 
             // here we play the same A note but 2 octaves below
-            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, true, 0.5f) * M_PI);
+            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.B, true, .50f) * M_PI);
         
             
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
