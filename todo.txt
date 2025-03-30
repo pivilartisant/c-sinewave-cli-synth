@@ -1,0 +1,2 @@
+- add better sin parameter naming 
+- add easier way to select a note
