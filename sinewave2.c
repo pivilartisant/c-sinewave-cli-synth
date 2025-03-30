@@ -6,7 +6,7 @@
 #include <math.h>
 #include <headers/octave.h>
 
-static const float PI = 3.1415926535f;
+
 static float seconds_offset = 0.0f;
 static void write_callback(struct SoundIoOutStream *outstream,
         int frame_count_min, int frame_count_max)   
@@ -35,10 +35,10 @@ static void write_callback(struct SoundIoOutStream *outstream,
 
   
             // we are going for a two channel polyphonic synth
-            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, false, 0) * PI);
+            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, false, 0) * M_PI);
 
             // here we play the same A note but 2 octaves below
-            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, true, 0.5f) * PI);
+            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(note_frequency, true, 0.5f) * M_PI);
         
             
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
