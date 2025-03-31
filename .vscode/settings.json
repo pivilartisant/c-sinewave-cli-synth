@@ -4,6 +4,9 @@
         "stdint.h": "c",
         "stdlib.h": "c",
         "stdio.h": "c",
-        "octave.h": "c"
+        "octave.h": "c",
+        "scales.h": "c",
+        "complex": "c",
+        "cmath": "c"
     }
 }

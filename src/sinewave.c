@@ -1,3 +1,5 @@
+//sinewave.c
+
 #include <soundio/soundio.h>
 
 #include <stdio.h>
@@ -13,13 +15,13 @@ static void generate_sinewave(struct SoundIoOutStream *outstream,
 {
     const struct SoundIoChannelLayout *layout = &outstream->layout;
     float float_sample_rate = outstream->sample_rate; // or frames per second defaults to 48000
-    float seconds_per_frame = 1.0f / float_sample_rate;  // number of seconds per frame 
+    float seconds_per_frame = 0.5f / float_sample_rate;  // number of seconds per frame 
     struct SoundIoChannelArea *areas;
     int frames_left = frame_count_max;
     int err;
 
     struct A_minor_scale a_minor_scale;
-    initScale(&a_minor_scale);
+    init_scale(&a_minor_scale);
 
     while (frames_left > 0) {
 
@@ -33,15 +35,12 @@ static void generate_sinewave(struct SoundIoOutStream *outstream,
         if (!frame_count)
             break;
 
-        float note_frequency = 440.0f;
         for (int frame = 0; frame < frame_count; frame += 1) {
-
-  
             // we are going for a two channel polyphonic synth
-            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, true, 0.75) * M_PI);
+            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, false, 1.0f) * M_PI);
 
             // here we play the same A note but 2 octaves below
-            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.B, true, .50f) * M_PI);
+            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, true, 0.5f) * M_PI);
         
             
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
