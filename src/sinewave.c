@@ -36,13 +36,11 @@ static void generate_sinewave(struct SoundIoOutStream *outstream,
             break;
 
         for (int frame = 0; frame < frame_count; frame += 1) {
-
-  
             // we are going for a two channel polyphonic synth
-            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.B, true, 2.0f) * M_PI);
+            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, false, 1.0f) * M_PI);
 
             // here we play the same A note but 2 octaves below
-            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.E, true, 0.05f) * M_PI);
+            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, true, 0.5f) * M_PI);
         
             
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
@@ -51,11 +49,10 @@ static void generate_sinewave(struct SoundIoOutStream *outstream,
                if (channel == 0) {
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
                 *ptr = note_one;
-               } 
-            //    else {
-            //     float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
-            //     *ptr = note_two;
-            //    }
+               } else {
+                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
+                *ptr = note_two;
+               }
             }
         }
         seconds_offset = fmod(seconds_offset + seconds_per_frame * frame_count, 1.0);
