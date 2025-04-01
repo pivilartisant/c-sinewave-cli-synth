@@ -2,9 +2,6 @@ CC = gcc
 CFLAGS = -I/opt/homebrew/include -I./include
 LDFLAGS = -L/opt/homebrew/lib -lsoundio -lm
 
-# Add the source files
-SOURCES = main.c src/sinewave.c src/scales.c src/octave.c
-
 # Add object files
 OBJECTS = main.o sinewave.o scales.o octave.o
 
