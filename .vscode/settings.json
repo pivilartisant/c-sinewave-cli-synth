@@ -7,6 +7,12 @@
         "octave.h": "c",
         "scales.h": "c",
         "complex": "c",
-        "cmath": "c"
+        "cmath": "c",
+        "sinewave.h": "c",
+        "math.h": "c",
+        "string.h": "c",
+        "queue": "c",
+        "stack": "c",
+        "random": "c"
     }
 }

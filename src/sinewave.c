@@ -1,16 +1,19 @@
 //sinewave.c
 
 #include <soundio/soundio.h>
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <math.h>
 #include <include/octave.h>
 #include <include/scales.h>
+#include <include/sinewave.h>
+
+// this file is not in use right now
 
 static float seconds_offset = 0.0f;
-static void generate_sinewave(struct SoundIoOutStream *outstream,
+void generate_sinewave(struct SoundIoOutStream *outstream,
         int frame_count_min, int frame_count_max)   
 {
     const struct SoundIoChannelLayout *layout = &outstream->layout;
@@ -22,6 +25,7 @@ static void generate_sinewave(struct SoundIoOutStream *outstream,
 
     struct A_minor_scale a_minor_scale;
     init_scale(&a_minor_scale);
+    
 
     while (frames_left > 0) {
 
@@ -36,6 +40,7 @@ static void generate_sinewave(struct SoundIoOutStream *outstream,
             break;
 
         for (int frame = 0; frame < frame_count; frame += 1) {
+      
             // we are going for a two channel polyphonic synth
             float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(a_minor_scale.A, false, 1.0f) * M_PI);
 

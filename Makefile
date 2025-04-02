@@ -3,7 +3,7 @@ CFLAGS = -I/opt/homebrew/include -I./include
 LDFLAGS = -L/opt/homebrew/lib -lsoundio -lm
 
 # Add object files
-OBJECTS = main.o sinewave.o scales.o octave.o
+OBJECTS = main.o scales.o octave.o
 
 # Target to build the program
 main: $(OBJECTS)
@@ -13,9 +13,9 @@ main: $(OBJECTS)
 main.o: main.c
 	$(CC) $(CFLAGS) -c main.c
 
-# Compile src/sinewave.c
-sinewave.o: src/sinewave.c
-	$(CC) $(CFLAGS) -c src/sinewave.c
+# # Compile src/sinewave.c
+# sinewave.o: src/sinewave.c
+# 	$(CC) $(CFLAGS) -c src/sinewave.c
 
 # Compile src/scales.c
 scales.o: src/scales.c
