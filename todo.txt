@@ -1,3 +1,2 @@
-- add better sin parameter naming 
 - vizualize sinewave in realtime
-- create stream_info.c from sinewav1.c
+- improve changing notes

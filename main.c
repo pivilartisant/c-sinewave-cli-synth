@@ -12,22 +12,26 @@
 
 float frequency_A = 0.0f;
 float frequency_B = 0.0f;
-float seconds_offset = 0.0f;
+float time = 0.0f;
+int amplitude = 1;
+
+double generate_sine(float frequency, float phase){
+    return sin((2 * M_PI) * (frequency) * phase);
+};
+
 void generate_sinewave(struct SoundIoOutStream *outstream,
         int frame_count_min, int frame_count_max)   
 {
     const struct SoundIoChannelLayout *layout = &outstream->layout;
     float float_sample_rate = outstream->sample_rate; // or frames per second defaults to 48000
-    float seconds_per_frame = 0.5f / float_sample_rate;  // number of seconds per frame 
+    float seconds_per_frame = 1.0f / float_sample_rate;  // number of seconds per frame, fixed value
     struct SoundIoChannelArea *areas;
     int frames_left = frame_count_max;
     int err;
 
-    
-
     while (frames_left > 0) {
 
-        int frame_count = frames_left;
+        int frame_count = frames_left; // 606 frames
 
         if ((err = soundio_outstream_begin_write(outstream, &areas, &frame_count))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));
@@ -39,11 +43,16 @@ void generate_sinewave(struct SoundIoOutStream *outstream,
 
         for (int frame = 0; frame < frame_count; frame += 1) {
       
-            // we are going for a two channel polyphonic synth
-            float note_one = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(frequency_A, true, 2.0f) * M_PI);
+            float oscillations_per_second_A = generate_octave(frequency_A, true, 0.5f);
+            float oscillations_per_second_B = generate_octave(frequency_B, true, 0.5f);
+
+            float phase = time + frame * seconds_per_frame; 
+
+            // we are going for a two channel duo-phonic synth
+            float note_one = amplitude * generate_sine(oscillations_per_second_A, phase);
 
             // here we play the same A note but 2 octaves below
-            float note_two = sin((seconds_offset + frame * seconds_per_frame) * generate_octave(frequency_B, true, 2.0f) * M_PI);
+            float note_two = amplitude * generate_sine(oscillations_per_second_B, phase);
         
             
             for (int channel = 0; channel < layout->channel_count; channel += 1) {
@@ -52,13 +61,15 @@ void generate_sinewave(struct SoundIoOutStream *outstream,
                if (channel == 0) {
                 float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
                 *ptr = note_one;
-               } else {
-                float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame);
-                *ptr = note_two;
-               }
+               } else { float *ptr = (float*)(areas[channel].ptr + areas[channel].step * frame); \
+                *ptr = note_two;}
             }
         }
-        seconds_offset = fmod(seconds_offset + seconds_per_frame * frame_count, 1.0);
+
+        // ensures that sinewave is smooth
+        // no fmod because I don't want to reset the wave in the middle of a cycle
+        time = time + seconds_per_frame * frame_count;   
+       
 
         if ((err = soundio_outstream_end_write(outstream))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));
@@ -74,6 +85,8 @@ void generate_sinewave(struct SoundIoOutStream *outstream,
 
 int main(int argc, char **argv) {
 
+    // Initializing the synth 
+
     struct A_minor_scale a_minor_scale;
     init_scale(&a_minor_scale);
     
@@ -86,6 +99,7 @@ int main(int argc, char **argv) {
     int target_voice = 1; // default is voice A, to change user needs to first inputs tqregt voice, than target note
 
 
+    // Initializing boring stuff  
     int err;
     struct SoundIo *soundio = soundio_create();
     if (!soundio) {
@@ -120,7 +134,7 @@ int main(int argc, char **argv) {
         return 1;
     }
     outstream->format = SoundIoFormatFloat32NE;
-    outstream->write_callback = generate_sinewave;
+    outstream->write_callback = generate_sinewave; // this actually triggers the initial callback
 
     if ((err = soundio_outstream_open(outstream))) {
         fprintf(stderr, "unable to open device: %s", soundio_strerror(err));
@@ -136,7 +150,8 @@ int main(int argc, char **argv) {
     }
 
     for (;;){
-        soundio_flush_events(soundio);
+        soundio_flush_events(soundio); 
+        // basic way for me to select a note and a channel
         c = getchar();
             if (c=='a'){
                 target_frequency = a_minor_scale.A;
@@ -167,10 +182,10 @@ int main(int argc, char **argv) {
 
             if (target_voice == 1 && target_frequency != frequency_A ) {
             frequency_A = target_frequency;
-            printf("Setting voice A frequency to:%f\n", frequency_A);
+                printf("Setting voice A frequency to:%f\n", frequency_A);
             } else if (target_voice == 2 && target_frequency != frequency_B) {
             frequency_B = target_frequency;
-            printf("Setting voice B frequency to:%f\n", frequency_B);
+                printf("Setting voice B frequency to:%f\n", frequency_B);
             } else {
                 continue;
             }
