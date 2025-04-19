@@ -1,2 +1,2 @@
-- vizualize sinewave in realtime
-- improve changing notes
+[ ] - vizualize sinewave in realtime
+[X] - improve changing notes (18/04/2025)
