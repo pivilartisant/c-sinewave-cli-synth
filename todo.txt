@@ -1,2 +1,3 @@
 [ ] - vizualize sinewave in realtime
+[ ] - app gui 
 [X] - improve changing notes (18/04/2025)
