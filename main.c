@@ -14,6 +14,7 @@ float frequency_A = 0.0f;
 float frequency_B = 0.0f;
 float time = 0.0f;
 int amplitude = 1;
+char c = 0;
 
 double generate_sine(float frequency, float phase){
     return sin((2 * M_PI) * (frequency) * phase);
@@ -70,7 +71,6 @@ void generate_sinewave(struct SoundIoOutStream *outstream,
         // no fmod because I don't want to reset the wave in the middle of a cycle
         time = time + seconds_per_frame * frame_count;   
        
-
         if ((err = soundio_outstream_end_write(outstream))) {
             fprintf(stderr, "%s\n", soundio_strerror(err));
             exit(1);
@@ -80,24 +80,34 @@ void generate_sinewave(struct SoundIoOutStream *outstream,
     };
 };
 
+void set_target_voice(float target_frequency, int target_voice){
+    if (target_voice == 1 ) {
+        frequency_A = target_frequency;
+            printf("Setting voice A frequency to:%f\n\n", frequency_A);
+            return;
+    } 
+        
+    frequency_B = target_frequency;
+    printf("Setting voice B frequency to:%f\n\n", frequency_B);
+    return;
+}
+
 
 
 
 int main(int argc, char **argv) {
+
 
     // Initializing the synth 
 
     struct A_minor_scale a_minor_scale;
     init_scale(&a_minor_scale);
     
+    // sets default frequency
     frequency_A = a_minor_scale.A;
-
     frequency_B = a_minor_scale.A;
-
-    int c; // input character
-    float target_frequency = a_minor_scale.A; // to avoid not output
-    int target_voice = 1; // default is voice A, to change user needs to first inputs tqregt voice, than target note
-
+    
+    int target_voice = 1; // default is voice A, to change user needs to first inputs target voice, than target note
 
     // Initializing boring stuff  
     int err;
@@ -149,47 +159,51 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-    for (;;){
+
+ 
+
+    for (;;){ ;
         soundio_flush_events(soundio); 
+  
+        // gets input 
+        c = getchar(); // by default char = 0
+        printf("char: %c\n", c);
+
         // basic way for me to select a note and a channel
-        c = getchar();
-            if (c=='a'){
-                target_frequency = a_minor_scale.A;
-            } else if (c == 'b'){
-                target_frequency = a_minor_scale.B;
-            } else if (c == 'c') {
-                target_frequency = a_minor_scale.C;
-            } else if (c == 'd') {     
-                target_frequency = a_minor_scale.D; 
-            } else if (c == 'e') {     
-                target_frequency = a_minor_scale.E; 
-            } else if (c == 'f') {     
-                target_frequency = a_minor_scale.F; 
-            } else if (c == 'g') {     
-                target_frequency = a_minor_scale.G; 
-            };
-
-            // set target voice
-            if (c == '1'){
-                target_voice = 1;
-                printf("Targeting voice A\n");
-            }
-            if(c == '2'){
-                target_voice = 2;
-                printf("Targeting voice B\n");
-            }
-         
-
-            if (target_voice == 1 && target_frequency != frequency_A ) {
-            frequency_A = target_frequency;
-                printf("Setting voice A frequency to:%f\n", frequency_A);
-            } else if (target_voice == 2 && target_frequency != frequency_B) {
-            frequency_B = target_frequency;
-                printf("Setting voice B frequency to:%f\n", frequency_B);
-            } else {
-                continue;
-            }
+        switch (c)
+        {
+        case '1':
+             target_voice = 1;
+            break;
+        case '2':
+            target_voice = 2;
+           break;
+        case 'a':
+            set_target_voice(a_minor_scale.A, target_voice);
+          break;
+        case 'w':
+            set_target_voice(a_minor_scale.B, target_voice);
+        break;
+        case 's':
+            set_target_voice(a_minor_scale.C, target_voice);
+        break;
+        case 'e':
+            set_target_voice(a_minor_scale.D, target_voice);
+        break;
+        case 'd':
+            set_target_voice(a_minor_scale.E, target_voice);
+        break;
+        case 'r':
+            set_target_voice(a_minor_scale.F, target_voice);
+        break;
+        case 'f':
+            set_target_voice(a_minor_scale.G, target_voice);
+        break;
+        
+        default:
+            break;
         }
+    }
     
     soundio_outstream_destroy(outstream);
     soundio_device_unref(device);
